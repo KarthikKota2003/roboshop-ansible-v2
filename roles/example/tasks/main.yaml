@@ -1,0 +1,3 @@
+- name: This is a sample meta role
+  debug:
+    msg: "Hello from example role"
