@@ -1,0 +1,58 @@
+# - name: Disabling default nodejs
+#     command: dnf module disable nodejs -y
+  
+#   - name: Enabling nodejs v24
+#     command: dnf module enable nodejs:24 -y
+  
+#   - name: Installing nodejs
+#     dnf:
+#       name: nodejs
+#       state: present
+
+  
+  
+#   - name: Installing dependencies
+#     community.general.npm:
+#       path: /app
+  
+#   - name: Copying catalogue service file
+#     template:
+#       src: catalogue.service.j2
+#       dest: /etc/systemd/system/catalogue.service
+  
+#   - name: Systemctl daemon-reload
+#     systemd_service:
+#       daemon-reload: true
+  
+#   - name: Starting catalogue service
+#     service:
+#       name: catalogue
+#       state: restarted
+#       enabled: yes
+  
+#   - name: Copying mongo.repo
+#     copy:
+#       src: mongo.repo
+#       dest: /etc/yum.repos.d/mongo.repo
+  
+#   - name: Installing mongodb client
+#     dnf:
+#       name: mongodb-mongosh 
+#       state: present
+  
+#   - name: Check data already loaded or not
+#     command: mongosh --host "{{ mongodb_host }}" --quiet --eval 'db.getSiblingDB("catalogue").products.countDocuments()'
+#     register: product_output
+  
+#   - name: Print variable
+#     debug:
+#       msg: "{{product_output}}"
+  
+#   - name: Loading data
+#     shell: mongosh --host "{{ mongodb_host }}" </app/db/master-data.js
+#     when: product_output.stdout | int == 0 
+
+- name: Application setup for catalogue
+  include_role:
+    name: common
+    tasks_from: app_setup
