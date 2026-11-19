@@ -1,6 +1,6 @@
 - name: Testing variables
   debug:
-    name: "trainer is {{trainer}},course is {{course}}"
+    msg: "trainer is {{trainer}},course is {{course}}"
 
 - name: Application setup for catalogue
   include_role:
