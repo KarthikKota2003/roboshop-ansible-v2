@@ -1,0 +1,47 @@
+- name: Configuring shipping server
+  hosts: shipping
+  become: yes
+  tasks:
+  - name: Application setup for shipping
+    include_role:
+      name: common
+      tasks_from: app_setup
+  
+  - name: Java setup for shipping
+    include_role:
+      name: common
+      tasks_from: java_setup  
+  
+  - name: System setup for shipping
+    include_role:
+      name: common
+      tasks_from: system_setup
+  
+  - name: Starting/Restarting shipping service
+    include_role:
+      name: common
+      tasks_from: restart
+  
+  - name: Checking if data exists or not
+    command: mysql -h "{{ mysql_host }}" -u root -p"{{ shipping_db_password }}" -N -B -e "SELECT COUNT(*) FROM cities.cities;"
+    register: cities_output
+    ignore_errors: true #if this is not there, then in case of non-existing table further tasks dont proceed
+    tags: #Using this tag, we can only run mysql parts of shipping module
+    - mysql
+  
+  - name: Printing cities output
+    debug:
+      msg: "{{ cities_output }}"
+    tags:
+    - mysql
+  
+  - name: Loading data into mysql`
+    shell: mysql -h "{{ mysql_host }}" -uroot -p"{{ shipping_db_password }}" < /app/db/master-data.sql
+    when: cities_output.rc !=0 or cities_output.stdout | int == 0
+    tags:
+    - mysql
+  
+  - name: Creating shipping app user in mysql
+    shell: mysql -h "{{ mysql_host }}" -uroot -p"{{ shipping_db_password }}" < /app/db/app-user.sql
+    tags:
+    - mysql
