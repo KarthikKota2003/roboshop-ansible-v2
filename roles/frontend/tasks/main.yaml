@@ -1,0 +1,58 @@
+- name: Enable nginx1.26  
+  command: dnf module enable nginx:1.26 -y
+
+- name: Installing nginx
+  dnf:
+    name: nginx
+    state: present
+
+- name: Starting nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: true
+
+- name: Find all contents inside the nginx directory
+  ansible.builtin.find:
+    paths: /usr/share/nginx/html
+    file_type: any
+    hidden: true
+    recurse: false
+  register: directory_contents
+
+- name: Printing nginx directory contents
+  debug:
+    msg: "{{ directory_contents }}"
+
+
+- name: Remove all found contents in nginx directory
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ directory_contents.files }}"
+
+- name: Deleting .zip file if exists
+  file:
+    name: /tmp/frontend.zip
+    state: absent 
+
+- name: Downloading .zip file
+  get_url:
+    url: https://raw.githubusercontent.com/daws-92s/roboshop-documentation/refs/heads/main/artifacts/frontend-v4.zip
+    dest: /tmp/frontend.zip
+
+- name: Extract .zip file into nginx directory
+  unarchive:
+    src: /tmp/frontend.zip
+    dest: /usr/share/nginx/html
+    remote_src: true
+  
+- name: Configuring roboshop.conf (Reverse Proxy)
+  template:
+    src: roboshop.conf.j2
+    dest: /etc/nginx/default.d/roboshop.conf
+
+- name: Restarting nginx
+  service:
+    name: nginx
+    state: restarted
