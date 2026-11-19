@@ -1,0 +1,22 @@
+- name: Enabling mysql v8.4
+  command: dnf module enable mysql:8.4 -y
+
+- name: Installing MySQL
+  package:
+    name: mysql-server
+    state: present
+
+- name: Starting MySQL service
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+# - name: Setting mysql root password
+#   ansible.mysql.mysql_user:
+#     name: root
+#     password: "{{root_password}}"
+#     state: present
+
+- name: Setting MySQL root password
+  command: "mysql_secure_installation --set-root-pass {{mysql_root_password}}"
