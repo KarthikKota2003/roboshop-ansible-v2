@@ -1,0 +1,27 @@
+- name: Copying rabbitmq.repo
+  copy:
+    src: rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+
+- name: Downloading rabbitmq packages
+  dnf:
+    name:
+    - erlang 
+    - rabbitmq-server
+    state: present
+
+- name: Starting and enabling rabbitmq service
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+  
+- name: Adding rabbitmq user and setting permissions
+  community.rabbitmq.rabbitmq_user:
+    user: {{rabbitmq_user}}
+    password: {{rabbitmq_password}}
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
