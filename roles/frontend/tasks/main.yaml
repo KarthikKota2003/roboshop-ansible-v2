@@ -51,8 +51,4 @@
   template:
     src: roboshop.conf.j2
     dest: /etc/nginx/default.d/roboshop.conf
-
-- name: Restarting nginx
-  service:
-    name: nginx
-    state: restarted
+  notify: Restart nginx
